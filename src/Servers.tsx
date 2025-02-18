@@ -8,22 +8,75 @@ interface ServerProps {
 
 const Servers: React.FC<ServerProps> = ({ showProgressBar, openPopupWallet, openPopupDid }) => {
   const [servers, setServers] = useState([
-    { id: "tas", name: "TAS", port: 8090, status: "🔴" },
-    { id: "issuer", name: "Issuer", port: 8091, status: "🟢" },
-    { id: "verifier", name: "Verifier", port: 8092, status: "🟢" },
+    { id: "tas", name: "TAS", port: 8090, status: "⚪" },
+    { id: "issuer", name: "Issuer", port: 8091, status: "⚪" },
+    { id: "verifier", name: "Verifier", port: 8092, status: "⚪" },
+    { id: "api", name: "API Server", port: 8093, status: "⚪" },
     { id: "cas", name: "CAS", port: 8094, status: "⚪" },
     { id: "wallet", name: "Wallet Service", port: 8095, status: "⚪" },
-    { id: "api", name: "API Server", port: 8093, status: "⚪" },
   ]);
 
-  const updateServerStatus = (serverId: string, newStatus: string) => {
-    setServers((prevServers) =>
-      prevServers.map((server) =>
-        server.id === serverId ? { ...server, status: newStatus } : server
-      )
-    );
-  };
+  const healthCheck = async (serverId: string, serverPort: number) => {
+    try {
+      const response = await fetch(`/healthcheck/${serverPort}`, {
+        method: "GET",
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to fetch health status for ${serverId}`);
+      }
+  
+      const data = await response.json();
+      setServers((prevServers) =>
+        prevServers.map((server) =>
+          server.id === serverId
+            ? { ...server, status: data.status === "UP" ? "🟢" : "🔴" }
+            : server
+        )
+      );
 
+    } catch (error) {
+      console.error("Error checking server status:", error);
+
+      setServers((prevServers) =>
+        prevServers.map((server) =>
+          server.id === serverId ? { ...server, status: "🔴" } : server
+        )
+      );
+    }
+  };
+  const startServer = async (serverId: string, serverPort: number) => {
+    try {
+      const response = await fetch(`/startup/${serverPort}`, {
+        method: "GET",
+      });
+
+      if (response.ok) {
+        console.log(`Server ${serverId} started successfully`);
+        healthCheck(serverId, serverPort);
+      } else {
+        console.error(`Failed to start server ${serverId}`);
+      }
+    } catch (error) {
+      console.error("Error starting server:", error);
+    }
+  };
+  const stopServer = async (serverId: string, serverPort: number) => {
+    try {
+      const response = await fetch(`/shutdown/${serverPort}`, {
+        method: "GET",
+      });
+
+      if (response.ok) {
+        console.log(`Server ${serverId} stopped successfully`);
+        healthCheck(serverId, serverPort);
+      } else {
+        console.error(`Failed to stop server ${serverId}`);
+      }
+    } catch (error) {
+      console.error("Error stop server:", error);
+    }
+  };
   return (
     <section className="bg-white p-6 rounded shadow mb-6">
       <h2 className="text-xl font-bold mb-4">Servers</h2>
@@ -46,17 +99,20 @@ const Servers: React.FC<ServerProps> = ({ showProgressBar, openPopupWallet, open
                 <div className="flex space-x-2">
                   <button
                     className="bg-green-500 text-white px-3 py-1 rounded"
-                    onClick={() => updateServerStatus(server.id, "🟢")}
+                    onClick={() => startServer(server.id, server.port)}
                   >
                     Start
                   </button>
                   <button
                     className="bg-red-500 text-white px-3 py-1 rounded"
-                    onClick={() => updateServerStatus(server.id, "🔴")}
+                    onClick={() => stopServer(server.id, server.port)}
                   >
                     Stop
                   </button>
-                  <button className="bg-gray-500 text-white px-3 py-1 rounded">
+                  <button 
+                  className="bg-gray-500 text-white px-3 py-1 rounded"
+                    onClick={() => healthCheck(server.id, server.port)}
+                  >
                     Status
                   </button>
                 </div>

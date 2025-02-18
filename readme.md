@@ -30,24 +30,27 @@ Orchestrator 화면은 다음과 같은 주요 영역으로 구성됩니다.
 
 - **Hyperledger Fabric**
   - 상태 아이콘: 🟢 (실행 중) / 🔴 (중지됨)
-  - `Start`: Hyperledger Fabric을 시작합니다.
-  - `Stop`: Hyperledger Fabric을 종료합니다.
-  - `Status`: Hyperledger Fabric의 상태를 확인합니다.
+  - `Start`: Hyperledger Fabric 시작
+  - `Stop`: Hyperledger Fabric 종료
+  - `Status`: Hyperledger Fabric 구동상태 확인
 
 - **PostgreSQL**
   - 상태 아이콘: 🟢 (실행 중) / 🔴 (중지됨)
-  - `Start`: PostgreSQL를 시작합니다.
-  - `Stop`: PostgreSQL를 종료합니다.
-  - `Status`: PostgreSQL 상태를 확인합니다.
+  - `Start`: PostgreSQL 시작
+  - `Stop`: PostgreSQL 종료
+  - `Status`: PostgreSQL 구동상태 확인
 
 ### 2.3 Servers
 각 서버별로 **시작(Start), 종료(Stop), 상태 확인(Status)** 기능을 제공합니다.
 
 - **개별 서버 관리**
   - 상태 아이콘: 🟢 (실행 중) / 🔴 (중지됨)
-  - 각 서버의 포트 번호가 표시되며, `Start`, `Stop`, `Status` 버튼을 제공합니다.
-  - `Settings`: 개별 서버 설정 페이지로 이동하는 버튼이 제공됩니다.
-
+  - 각 서버의 이름 및 포트 번호가 표시
+  - `Start`: 개별 서버 시작
+  - `Stop`: 개별 서버 종료
+  - `Status`: 개별 서버 구동상태 확인
+  - `Settings`: 개별 서버 설정 페이지로 이동
+  - `Swagger`: 개별 서버 Swagger 페이지로 이동
 
 ## 3. 주의사항
 - `Start`, `Stop` 버튼을 사용할 경우, 서버 실행 환경에 따라 일정 시간이 소요될 수 있습니다.

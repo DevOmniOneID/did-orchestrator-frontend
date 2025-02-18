@@ -228,12 +228,14 @@ const App: React.FC = () => {
                     </div>
                   </td>
                   <td className="p-2">
-                    <button className="bg-blue-500 text-white px-3 py-1 rounded" onClick={openPopupWallet}>
-                      Wallet
-                    </button>
-                    <button className="bg-red-500 text-white px-3 py-1 rounded" onClick={openPopupDid}>
-                      DID Document
-                    </button>
+                    <div className="flex space-x-1">
+                      <button className="bg-blue-500 text-white px-3 py-1 rounded" onClick={openPopupWallet}>
+                        Wallet
+                      </button>
+                      <button className="bg-red-500 text-white px-3 py-1 rounded" onClick={openPopupDid}>
+                        DID Document
+                      </button>
+                    </div>
                   </td>
                 </tr>
                 <tr className="border-b">

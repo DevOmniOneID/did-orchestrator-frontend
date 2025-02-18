@@ -1,9 +1,10 @@
 import React, { useState } from "react";
+import HelpIcon from './icons/HelpIcon';
 
 interface QuickStartProps {
   showProgressBar: (server: string) => void;
   openGenerateAll: () => void;
-  showToolTip: (e: React.MouseEvent<HTMLButtonElement>) => void
+  showToolTip: (content: string, e: React.MouseEvent<HTMLButtonElement>) => void
 }
 
 const QuickStart: React.FC<QuickStartProps> = ({ showProgressBar, openGenerateAll, showToolTip }) => {
@@ -53,13 +54,8 @@ const QuickStart: React.FC<QuickStartProps> = ({ showProgressBar, openGenerateAl
             <th className="p-2 w-48">Info</th>
             <th className="p-2 w-48">
               Generators
-              <button onClick={showToolTip} className="text-gray-500 hover:text-gray-700">
-                <svg width="22px" height="16px" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-                  <title>Tool Tip</title>
-                  <path d="M256,80A176,176,0,1,0,432,256,176,176,0,0,0,256,80Z" className="fill-none stroke-black stroke-miterlimit-10 stroke-width-32" />
-                  <path d="M200,202.29s.84-17.5,19.57-32.57C230.68,160.77,244,158.18,256,158c10.93-.14,20.69,1.67,26.53,4.45,10,4.76,29.47,16.38,29.47,41.09,0,26-17,37.81-36.37,50.8S251,281.43,251,296" className="fill-none stroke-black stroke-linecap-round stroke-miterlimit-10 stroke-width-28" />
-                  <circle cx="250" cy="348" r="20" />
-                </svg>
+              <button onClick={(e) => showToolTip("Automatically generate Wallet and DID Document in bulk.<br/> If you prefer to create them individually, please use the Generators in the Servers section below.", e)} className="text-gray-500 hover:text-gray-700">
+                <HelpIcon width="1em" height="1em" />
               </button>
             </th>
           </tr>
@@ -81,7 +77,7 @@ const QuickStart: React.FC<QuickStartProps> = ({ showProgressBar, openGenerateAl
             <td className="p-2"></td>
             <td className="p-2">
               <button className="bg-green-700 text-white px-3 py-1 rounded" onClick={openGenerateAll}>
-                Gen All
+                Generate All
               </button>
             </td>
           </tr>

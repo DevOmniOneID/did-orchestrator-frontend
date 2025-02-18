@@ -2,8 +2,8 @@ import React, { useState } from "react";
 
 interface ServerProps {
   showProgressBar: (server: string) => void;
-  openPopupWallet: () => void;
-  openPopupDid: () => void;
+  openPopupWallet: (id: string) => void;
+  openPopupDid: (id: string) => void;
 }
 
 const Servers: React.FC<ServerProps> = ({ showProgressBar, openPopupWallet, openPopupDid }) => {
@@ -131,13 +131,13 @@ const Servers: React.FC<ServerProps> = ({ showProgressBar, openPopupWallet, open
                 <div className="flex space-x-2">
                   <button
                     className="bg-blue-500 text-white px-3 py-1 rounded"
-                    onClick={openPopupWallet}
+                    onClick={() => openPopupWallet(server.id)}
                   >
                     Wallet
                   </button>
                   <button
                     className="bg-purple-500 text-white px-3 py-1 rounded"
-                    onClick={openPopupDid}
+                    onClick={() => openPopupDid(server.id)}
                   >
                     DID Document
                   </button>

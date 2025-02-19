@@ -3,6 +3,7 @@ import Servers from "./Servers";
 import Demo from "./Demo";
 import Repositories from "./Repositories";
 import HelpIcon from './icons/HelpIcon';
+import showToolTip from "./Tooltip";
 
 const generateRandomDid = (): string => {
   const randomHex = [...Array(25)]
@@ -40,23 +41,6 @@ const App: React.FC = () => {
         }
       });
     });
-  };
-
-  // Function to show a tooltip near the clicked button.
-  const showToolTip = (content: string, e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    const target = e.currentTarget;
-    const rect = target.getBoundingClientRect();
-    const tooltip = document.createElement('div');
-    tooltip.className = "absolute bg-gray-700 text-white text-xs rounded py-1 px-2";
-    tooltip.style.zIndex = "1000";
-    tooltip.innerHTML = content;
-    const top = rect.bottom + window.scrollY + 5;
-    const left = rect.left + window.scrollX;
-    tooltip.style.top = top + "px";
-    tooltip.style.left = left + "px";
-    document.body.appendChild(tooltip);
-    setTimeout(() => tooltip.remove(), 3000);
   };
 
   const handleWalletSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -105,8 +89,11 @@ const App: React.FC = () => {
         <aside className="w-64 bg-gray-900 text-white flex flex-col border-r border-gray-300 h-[1250px]">
           <div className="p-6 text-lg font-bold">OmniOne OpenDID Orchestrator</div>
           <nav className="flex-1">
-            <a href="#" className="block py-3 px-6 bg-orange-500">
+            <a href="/" className="block py-3 px-6 bg-orange-500">
               Dashboard
+            </a>
+            <a href="/conf" className="block py-3 px-6 bg-gray-800">
+              Configuration
             </a>
           </nav>
           <div className="p-6 text-sm text-gray-400 flex-grow"></div>
@@ -136,8 +123,9 @@ const App: React.FC = () => {
                   <th className="p-2 w-48">Info</th>
                   <th className="p-2 w-48">
                     Generators
-                    <button onClick={(e) => showToolTip("Automatically generate Wallet and DID Document in bulk.<br/> If you prefer to create them individually, please use the Generators in the Servers section below.", e)} 
-                    className="text-gray-500 hover:text-gray-700">
+                      <button 
+                        onClick={(e) => showToolTip({ content: "Automatically generate Wallet and DID Document in bulk.<br/> If you prefer to create them individually, please use the Generators in the Servers section below.", event: e })} 
+                        className="text-gray-500 hover:text-gray-700">
                       <HelpIcon width="1em" height="1em" />
                     </button>
                   </th>
@@ -160,7 +148,7 @@ const App: React.FC = () => {
                   <td className="p-2"></td>
                   <td className="p-2">
                     <button className="bg-green-700 text-white px-3 py-1 rounded" onClick={openGenerateAll}>
-                      Gen All
+                      Genernate All
                     </button>
                   </td>
                 </tr>

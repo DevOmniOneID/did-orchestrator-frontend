@@ -6,7 +6,7 @@ interface TooltipProps {
   event: React.MouseEvent<HTMLButtonElement>;
 }
 
-const showToolTip = ({ content, event }: TooltipProps) => {
+const showToolTip = (content: string, event: React.MouseEvent<HTMLButtonElement>) => {
   event.preventDefault();
   const target = event.currentTarget;
   const rect = target.getBoundingClientRect();

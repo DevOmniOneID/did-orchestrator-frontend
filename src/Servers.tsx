@@ -96,7 +96,7 @@ const Servers: React.FC<ServerProps> = ({ showProgressBar, openPopupWallet, open
               <td className="p-2">{server.status}</td>
               <td className="p-2 font-bold">{server.name} ({server.port})</td>
               <td className="p-2">
-                <div className="flex space-x-2">
+                <div className="flex space-x-1">
                   <button
                     className="bg-green-500 text-white px-3 py-1 rounded"
                     onClick={() => startServer(server.id, server.port)}
@@ -118,7 +118,7 @@ const Servers: React.FC<ServerProps> = ({ showProgressBar, openPopupWallet, open
                 </div>
               </td>
               <td className="p-2">
-                <div className="flex space-x-2">
+                <div className="flex space-x-1">
                   <button className="bg-gray-600 text-white px-3 py-1 rounded">
                     Settings
                   </button>
@@ -128,7 +128,7 @@ const Servers: React.FC<ServerProps> = ({ showProgressBar, openPopupWallet, open
                 </div>
               </td>
               <td className="p-2">
-                <div className="flex space-x-2">
+                <div className="flex space-x-1">
                   <button
                     className="bg-blue-500 text-white px-3 py-1 rounded"
                     onClick={() => openPopupWallet(server.id)}

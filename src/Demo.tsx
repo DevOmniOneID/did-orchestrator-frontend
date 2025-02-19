@@ -1,14 +1,22 @@
 import React from "react";
+import HelpIcon from './icons/HelpIcon';
+import showToolTip from "./Tooltip";
 
 interface DemoProps {
   showProgressBar: (server: string) => void;
+  showToolTip: (content: string, e: React.MouseEvent<HTMLButtonElement>) => void
 }
 
-const Demo: React.FC<DemoProps> = ({ showProgressBar }) => {
+const Demo: React.FC<DemoProps> = ({ showProgressBar, showToolTip }) => {
   return (
     <section className="bg-white p-6 rounded shadow">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Demo</h2>
+        <h2 className="text-xl font-bold">Demo
+        <button onClick={(e) => showToolTip("You can control the Demo below once all the Servers above are running.<br>The Actions and Info will be activated at that time.", e)}
+        className="text-gray-500 hover:text-gray-700 ml-1">
+          <HelpIcon width="0.9em" height="0.9em" />
+        </button>
+        </h2>
       </div>
       <table className="w-full text-left border-collapse">
         <thead>

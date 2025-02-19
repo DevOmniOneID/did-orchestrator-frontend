@@ -124,7 +124,7 @@ const App: React.FC = () => {
                   <th className="p-2 w-48">
                     Generators
                       <button 
-                        onClick={(e) => showToolTip({ content: "Automatically generate Wallet and DID Document in bulk.<br/> If you prefer to create them individually, please use the Generators in the Servers section below.", event: e })} 
+                        onClick={(e) => showToolTip("Automatically generate Wallet and DID Document in bulk.<br/> If you prefer to create them individually, please use the Generators in the Servers section below.", e)} 
                         className="text-gray-500 hover:text-gray-700">
                       <HelpIcon width="1em" height="1em" />
                     </button>
@@ -167,7 +167,10 @@ const App: React.FC = () => {
           />
           
           {/* Demo Table */}
-          <Demo showProgressBar={showProgressBar} />
+          <Demo
+            showProgressBar={showProgressBar}
+            showToolTip={showToolTip}
+          />
         </main>
       </div>
 

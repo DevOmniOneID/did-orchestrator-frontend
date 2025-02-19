@@ -11,7 +11,7 @@
 ## 2. 화면 구성
 Orchestrator 화면은 다음과 같은 주요 영역으로 구성됩니다.
 
-![freepik license](orchestrator.png)
+![freepik license](https://raw.githubusercontent.com/DevOmniOneID/did-orchestrator-frontend/refs/heads/main/orchestrator.png)
 
 ### 2.1 Quick Start
 전체 엔티티에 대한 **시작(Start All), 종료(Stop All)** 기능을 제공합니다.

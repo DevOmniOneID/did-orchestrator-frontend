@@ -145,6 +145,11 @@ const App: React.FC = () => {
 
   // 모든 엔티티에 대해 순차적으로 시작 요청 시 진행 상태를 "PROGRESS"로 저장 후, 완료되면 "🟢"로 업데이트
   const startAll = async () => {
+    if (status === "PROGRESS") {
+      alert("The operation is currently in progress. Please try again later.");
+      return;
+    }
+
     setStatus("PROGRESS");
     if (repositoriesRef.current) {
       await repositoriesRef.current.startAll();
@@ -158,6 +163,11 @@ const App: React.FC = () => {
 
   // 모든 엔티티에 대해 순차적으로 중지 요청 시 진행 상태를 "PROGRESS"로 저장 후, 완료되면 "⚪"로 업데이트
   const stopAll = async () => {
+    if (status === "PROGRESS") {
+      alert("The operation is currently in progress. Please try again later.");
+      return;
+    }
+
     setStatus("PROGRESS");
     if (serversRef.current) {
       await serversRef.current.stopAll();
@@ -232,7 +242,20 @@ const App: React.FC = () => {
                 <tr className="bg-gray-200">
                   <th className="p-2 w-20">Status</th>
                   <th className="p-2 w-56">Name</th>
-                  <th className="p-2 w-56">Actions</th>
+                  <th className="p-2 w-56">
+                    Actions
+                    <button
+                      onClick={(e) =>
+                        showToolTip(
+                          "This supports starting and stopping all entities sequentially.<br/> - Status All: If any entity's status becomes abnormal due to a browser refresh or similar event,<br> clicking this button will check and normalize the status of all entities.",
+                          e
+                        )
+                      }
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <HelpIcon width="1em" height="1em" />
+                    </button>
+                  </th>
                   <th className="p-2 w-48">Info</th>
                   <th className="p-2 w-48">
                     Generators

@@ -110,8 +110,8 @@ const Conf: React.FC = () => {
       }
       console.log('Config saved successfully!');
 
-      // 3초 대기
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // 1초 대기
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       // /actuator/refresh 호출
       const refreshResponse = await fetch('/api/actuator/refresh', {
@@ -133,13 +133,7 @@ const Conf: React.FC = () => {
 
   if (!config) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <img
-          src="https://i.gifer.com/ZZ5H.gif"
-          alt="Loading..."
-          className="w-16 h-16"
-        />
-      </div>
+      <ProgressOverlay />
     );
   }
 

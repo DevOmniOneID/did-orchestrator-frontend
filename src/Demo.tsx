@@ -3,11 +3,10 @@ import HelpIcon from './icons/HelpIcon';
 import showToolTip from "./Tooltip";
 
 interface DemoProps {
-  showProgressBar: (server: string) => void;
   showToolTip: (content: string, e: React.MouseEvent<HTMLButtonElement>) => void
 }
 
-const Demo: React.FC<DemoProps> = ({ showProgressBar, showToolTip }) => {
+const Demo: React.FC<DemoProps> = ({ showToolTip }) => {
   return (
     <section className="bg-white p-6 rounded shadow">
       <div className="flex justify-between items-center mb-4">
@@ -34,18 +33,16 @@ const Demo: React.FC<DemoProps> = ({ showProgressBar, showToolTip }) => {
             <td className="p-2">
               <div className="flex space-x-1">
                 <button
-                  className="bg-orange-500 text-white px-3 py-1 rounded"
-                  onClick={() => showProgressBar("demo")}
+                  className="bg-green-600 text-white px-3 py-1 rounded"
                 >
                   Start
                 </button>
                 <button
-                  className="bg-orange-500 text-white px-3 py-1 rounded"
-                  onClick={() => showProgressBar("demo")}
+                  className="bg-red-600 text-white px-3 py-1 rounded"
                 >
                   Stop
                 </button>
-                <button className="bg-orange-500 text-white px-3 py-1 rounded">
+                <button className="bg-gray-600 text-white px-3 py-1 rounded">
                   Status
                 </button>
               </div>

@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Servers from "./Servers";
-import Demo from "./Demo";
 import Repositories from "./Repositories";
+import Demo from "./Demo";
 import HelpIcon from './icons/HelpIcon';
 import showToolTip from "./Tooltip";
+import ProgressIcon from './icons/ProgressIcon';
+import ProgressOverlay from './ProgressOverlay';
 
 const generateRandomDid = (): string => {
   const randomHex = [...Array(25)]
@@ -13,10 +15,22 @@ const generateRandomDid = (): string => {
 };
 
 const App: React.FC = () => {
-  // State for popups
+  // isSaving 상태: Save 작업이 진행되는 동안 progress overlay를 표시하기 위한 상태
+  const [isSaving, setIsSaving] = useState(false);
   const [popupDid, setPopupDid] = useState<string | null>(null);
   const [popupWallet, setPopupWallet] = useState<string | null>(null);
   const [popupGenAll, setPopupGenAll] = useState(false);
+
+  // localStorage에서 초기 "allStatus" 값을 불러오고, 없으면 "⚪"를 기본값으로 사용합니다.
+  const [status, setStatus] = useState<string>(() => {
+    const stored = localStorage.getItem("allStatus");
+    return stored ? stored : "⚪";
+  });
+
+  // status가 변경될 때마다 localStorage에 저장합니다.
+  useEffect(() => {
+    localStorage.setItem("allStatus", status);
+  }, [status]);
 
   const openPopupDid = (id: string) => setPopupDid(id);
   const closePopupDid = () => setPopupDid(null);
@@ -25,61 +39,160 @@ const App: React.FC = () => {
   const openGenerateAll = () => setPopupGenAll(true);
   const closeGenerateAll = () => setPopupGenAll(false);
 
-  // Function to simulate showing a progress bar by updating table cell content.
-  const showProgressBar = (module: string) => {
-    const tableBodies = document.querySelectorAll('tbody.server-table');
-    tableBodies.forEach((tbody) => {
-      tbody.querySelectorAll('tr').forEach((row) => {
-        const statusCell = row.querySelector('td.' + module);
-        if (statusCell) {
-          const statusCell = row.querySelector('td.' + module);
-          if (statusCell instanceof HTMLElement) {
-            statusCell.innerHTML =
-              '<img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." class="w-5 h-5 inline-block" />';
-            statusCell.style.whiteSpace = 'nowrap';
-          }
-        }
-      });
-    });
-  };
-
-  const handleWalletSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const password = formData.get("walletPassword") as string;
-    const confirmPassword = formData.get("walletConfirmPassword") as string;
-    if (password !== confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
-    // 일치할 경우 추가 작업 수행
-    // TO-DO
-  };
-
   const handleGenAllSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const password = formData.get("genAllPassword") as string;
     const confirmPassword = formData.get("genAllConfirmPassword") as string;
+    if (password == "" || confirmPassword == "") {
+      alert("Please enter your password.");
+      return;
+    }
     if (password !== confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
-    // 일치할 경우 추가 작업 수행
-    // TO-DO
+    // 추가 작업 수행 (TO-DO)
+  };
+
+  const handleWalletSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const filename = formData.get("walletName") as string;
+    const password = formData.get("walletPassword") as string;
+    const confirmPassword = formData.get("walletConfirmPassword") as string;
+    if (password == "" || confirmPassword == "") {
+      alert("Please enter your password.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+    
+    setIsSaving(true); // 작업 시작 -> overlay 표시
+
+    try {
+      const walletResponse = await fetch("/api/create/wallet", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json; charset=UTF-8",
+        },
+        body: JSON.stringify({ filename, password }),
+      });
+  
+      if (!walletResponse.ok) {
+        const errorData = await walletResponse.json();
+        alert(`Wallet creation failed: ${errorData.message || "Unknown error."}`);
+        return;
+      }
+  
+      const keysResponse = await fetch("/api/create/keys", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json; charset=UTF-8",
+        },
+        body: JSON.stringify({ filename, password, keyIds: ["assert", "auth", "keyagree", "invoke"] }),
+      });
+  
+      if (!keysResponse.ok) {
+        const errorData = await keysResponse.json();
+        alert(`Keys creation failed: ${errorData.message || "Unknown error."}`);
+        return;
+      }
+  
+      alert("Wallet created successfully!");
+    } catch (error) {
+      console.error("Error creating wallet:", error);
+      alert("An error occurred while creating the wallet.");
+    } finally {
+      setIsSaving(false); // 작업 종료 -> overlay 숨김
+    }
   };
 
   const handleDidSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    const did = formData.get("did") as string;
+    const walletName = formData.get("walletName") as string;
     const password = formData.get("didPassword") as string;
     const confirmPassword = formData.get("didConfirmPassword") as string;
+    if (password == "" || confirmPassword == "") {
+      alert("Please enter your password.");
+      return;
+    }
     if (password !== confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
-    // 일치할 경우 추가 작업 수행
-    // TO-DO
+    // 추가 작업 수행 (TO-DO)
+  };
+
+  // 자식 컴포넌트(Repositories, Servers)에서 제공하는 startAll, stopAll, statusAll 함수를 호출하기 위한 ref 생성
+  const repositoriesRef = useRef<{
+    startAll: () => Promise<void>;
+    stopAll: () => Promise<void>;
+    getOverallStatus: () => string; 
+    statusAll: () => Promise<string>;
+  }>(null);
+
+  const serversRef = useRef<{
+    startAll: () => Promise<void>;
+    stopAll: () => Promise<void>;
+    getOverallStatus: () => string;
+    statusAll: () => Promise<string>;
+  }>(null);
+
+  // 모든 엔티티에 대해 순차적으로 시작 요청 시 진행 상태를 "PROGRESS"로 저장 후, 완료되면 "🟢"로 업데이트
+  const startAll = async () => {
+    setStatus("PROGRESS");
+    if (repositoriesRef.current) {
+      await repositoriesRef.current.startAll();
+    }
+    if (serversRef.current) {
+      await serversRef.current.startAll();
+    }
+
+    statusAll();
+  };
+
+  // 모든 엔티티에 대해 순차적으로 중지 요청 시 진행 상태를 "PROGRESS"로 저장 후, 완료되면 "⚪"로 업데이트
+  const stopAll = async () => {
+    setStatus("PROGRESS");
+    if (serversRef.current) {
+      await serversRef.current.stopAll();
+    }
+    if (repositoriesRef.current) {
+      await repositoriesRef.current.stopAll();
+    }
+
+    statusAll();
+  };
+
+  // Status All 버튼 클릭 시 각 컴포넌트의 statusAll 함수를 호출하여 전체 상태를 업데이트합니다.
+  const statusAll = async () => {
+    setStatus("PROGRESS");
+
+    if (serversRef.current) {
+      await serversRef.current.statusAll();
+    }
+    if (repositoriesRef.current) {
+      await repositoriesRef.current.statusAll();
+    }
+
+    const repoStatus = repositoriesRef.current ? await repositoriesRef.current.getOverallStatus() : "FAIL";
+    const serverStatus = serversRef.current ? await serversRef.current.getOverallStatus() : "FAIL";
+
+    console.log("repoStatus : " + repoStatus);
+    console.log("serverStatus : " + serverStatus);
+
+    if (repoStatus === "SUCCESS" && serverStatus === "SUCCESS") {
+      setStatus("🟢");
+    } else if (repoStatus === "FAIL" && serverStatus === "FAIL") {
+      setStatus("🔴");
+    } else {
+      setStatus("🟡");
+    }
   };
 
   return (
@@ -109,7 +222,7 @@ const App: React.FC = () => {
             </button>
           </header>
 
-          {/* Quick Start Table */}
+          {/* QuickStart Table */}
           <section className="bg-white p-6 rounded shadow mb-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Quick Start</h2>
@@ -123,9 +236,15 @@ const App: React.FC = () => {
                   <th className="p-2 w-48">Info</th>
                   <th className="p-2 w-48">
                     Generators
-                      <button 
-                        onClick={(e) => showToolTip("Automatically generate Wallet and DID Document in bulk.<br/> If you prefer to create them individually, please use the Generators in the Servers section below.", e)} 
-                        className="text-gray-500 hover:text-gray-700">
+                    <button
+                      onClick={(e) =>
+                        showToolTip(
+                          "Automatically generate Wallet and DID Document in bulk.<br/> If you prefer to create them individually, please use the Generators in the Servers section below.",
+                          e
+                        )
+                      }
+                      className="text-gray-500 hover:text-gray-700"
+                    >
                       <HelpIcon width="1em" height="1em" />
                     </button>
                   </th>
@@ -133,22 +252,39 @@ const App: React.FC = () => {
               </thead>
               <tbody className="server-table">
                 <tr className="border-b">
-                  <td className="p-2 pl-6 all">🟡</td>
+                  <td className="p-2 pl-6 all">
+                    {status === "PROGRESS" ? <ProgressIcon /> : status}
+                  </td>
                   <td className="p-2 font-bold">All Entities</td>
                   <td className="p-2">
                     <div className="flex space-x-1">
-                      <button className="bg-orange-500 text-white px-3 py-1 rounded" onClick={() => showProgressBar('all')}>
+                      <button
+                        className="bg-green-600 text-white px-3 py-1 rounded"
+                        onClick={startAll}
+                      >
                         Start All
                       </button>
-                      <button className="bg-orange-500 text-white px-3 py-1 rounded" onClick={() => showProgressBar('all')}>
-                       Stop All
+                      <button
+                        className="bg-red-600 text-white px-3 py-1 rounded"
+                        onClick={stopAll}
+                      >
+                        Stop All
                       </button>
-		                </div>
+                      <button
+                        className="bg-gray-600 text-white px-3 py-1 rounded"
+                        onClick={statusAll}
+                      >
+                        Status All
+                      </button>
+                    </div>
                   </td>
                   <td className="p-2"></td>
                   <td className="p-2">
-                    <button className="bg-green-700 text-white px-3 py-1 rounded" onClick={openGenerateAll}>
-                      Genernate All
+                    <button
+                      className="bg-orange-500 text-white px-3 py-1 rounded"
+                      onClick={openGenerateAll}
+                    >
+                      Generate All
                     </button>
                   </td>
                 </tr>
@@ -157,19 +293,13 @@ const App: React.FC = () => {
           </section>
 
           {/* Repositories Table */}
-          <Repositories showProgressBar={showProgressBar} />
+          <Repositories ref={repositoriesRef} />
 
           {/* Servers Table */}
           <Servers
-            showProgressBar={showProgressBar}
+            ref={serversRef} 
             openPopupWallet={openPopupWallet}
             openPopupDid={openPopupDid}
-          />
-          
-          {/* Demo Table */}
-          <Demo
-            showProgressBar={showProgressBar}
-            showToolTip={showToolTip}
           />
         </main>
       </div>
@@ -268,13 +398,10 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* Progress Bar Overlay */}
-      <div id="progress-overlay" className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden">
-        <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." className="w-16 h-16" />
-      </div>
+      {/* Progress Overlay Modal */}
+      {isSaving && <ProgressOverlay />}
     </div>
   );
 };
 
 export default App;
-
